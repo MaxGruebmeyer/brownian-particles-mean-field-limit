@@ -29,6 +29,11 @@ jobs:
       - name: Compile LaTeX
         uses: xu-cheng/latex-action@v3
         with:
+          # Pinned to match the local toolchain the thesis is checked against
+          # (Debian trixie's "TeX Live 2025/dev" is really the 2024 release:
+          # LaTeX2e 2024-11-01, tcolorbox 6.4.1). TeX Live 2025 fails in
+          # thesis.cls with "Command \c@intern:lemma already defined".
+          texlive_version: 2024
           working_directory: latex
           root_file: |
             thesis.tex
