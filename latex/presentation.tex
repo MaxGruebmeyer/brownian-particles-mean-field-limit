@@ -1,0 +1,430 @@
+\documentclass{beamer}
+
+% TODO (GM): Styling!
+\usetheme{Copenhagen}
+\setbeamertemplate{headline}{}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage[ngerman]{babel}
+
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{xcolor}
+\usepackage{todonotes}
+
+\presetkeys{todonotes}{inline}{}
+
+\usetikzlibrary{overlay-beamer-styles}
+\usetikzlibrary{arrows.meta,calc}
+
+% -- BEGIN SECTION TOKENS AND CUSTOM COMMANDS --
+
+\newcommand{\sectionstart}[1]{
+    \section{#1}
+    \begin{frame}
+        \centering
+        \huge{#1}
+    \end{frame}
+}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+% -- END SECTION TOKENS AND CUSTOM COMMANDS --
+
+% -- BEGIN SECTION SLIDES --
+
+\title[]{Brownian Particle Systems and its\\Mean-Field Limit}
+\author{Max Grübmeyer}
+\date{17th of July, 2026}
+
+\begin{document}
+    \begin{frame}
+        \titlepage
+    \end{frame}
+
+    \begin{frame}{Brownian Particle Systems}
+        Consider a particle system in $\R^d$ given by the SDE
+        \begin{equation*}
+            X_i(t) = X_i(0) + \sqrt2B_i(t)
+        \end{equation*}
+
+        \pause
+        
+        and the particle system given by
+        \begin{equation*}
+            dX_i(t) = \sqrt2dB_i(t) + b(X_i(t),\mu_t^N)dt
+        \end{equation*}
+    \end{frame}
+
+    \sectionstart{A Simple Start}
+
+    \begin{frame}{Problem formulation}
+        Consider a particle system in $\R^d$ given by the SDE
+        \begin{equation*}
+            X_i(t) = X_i(0) + \sqrt2B_i(t)
+        \end{equation*}
+        for $1\leq i\leq N$ and $B_i$ being independent standard Brownian motions
+    \end{frame}
+
+    \begin{frame}{Empirical Measures}
+        Consider the empirical measure $\mu_t^N$ given by
+        \begin{equation*}
+            \mu_t^N = \frac{1}{N}\sum_{i=1}^N\delta_{X_i(t)}
+        \end{equation*}
+
+        \pause
+
+        The canonical duality pairing is therefore given by
+        \begin{equation*}
+            \langle\mu_t^N,\varphi\rangle = \frac{1}{N}\sum_{i=1}^N\varphi(X_i(t))
+        \end{equation*}
+        for a test function $\varphi\in\mathcal{D}(\R^d)$
+    \end{frame}
+
+    \sectionstart{Formal evolution and law of large numbers}
+
+    \begin{frame}{Formal Evolution}
+        Take $\varphi(X_i(t))$ and apply Itô's formula to obtain
+        \begin{align*}
+            d\varphi(X(t))
+            %&= \sqrt2\sum_{j=1}^d\partial_{x_j}\varphi(X(t))dB^j(s)
+            %+ \sum_{j,l=1}^d\partial_{x_i,x_j}^2\varphi(X(t))dB^j(s)dB^l(s)\\
+            &= \sqrt2\nabla\varphi(X(s))\cdot dB(s) + \Delta\varphi(X(s))ds
+        \end{align*}
+
+        \pause
+        Integrating w.r.t. time and averaging over all particles yields
+        \begin{align*}
+            \frac{1}{N}\sum_{i=1}^N\varphi(X_i(t))
+            &= \frac{1}{N}\sum_{i=1}^N\varphi(X_i(0))
+            + \frac{\sqrt2}{N}\sum_{i=1}^N\int_0^t\nabla\varphi(X_i(s))\cdot dB_i(s)\\
+            &+ \frac{1}{N}\sum_{i=1}^N\int_0^t\Delta\varphi(X_i(s))ds
+        \end{align*}
+    \end{frame}
+
+    \begin{frame}{Formal Evolution}
+        Define
+        \begin{equation*}
+            M_t^N(\varphi)
+            \coloneq
+            \frac{\sqrt 2}{N}\sum_{i=1}^N\int_0^t\nabla\varphi\cdot dB_i(s)
+        \end{equation*}
+    
+        \pause
+        Then the previous equality can be rewritten as
+        \begin{equation*}
+            \langle\mu_t^N, \varphi\rangle = \langle\mu_0^N, \varphi\rangle
+            +\int_0^t\langle\mu_s^N,\Delta\varphi\rangle ds + M_t^N
+        \end{equation*}
+    \end{frame}
+
+    \begin{frame}{Second moment of $M_t^N$}
+        When looking at the second moment we obtain
+        \begin{align*}
+            \E[M_t^N(\varphi)^2]
+            &= \E\left[\left(
+            \frac{\sqrt 2}{N}\sum_{i=1}^N\int_0^t\nabla\varphi\cdot dB_i(s)
+            \right)^2\right]\\
+            &= \frac{2}{N^2}\E\left[
+            \sum_{i=1}^N\int_0^t(\nabla\varphi(X_i(s)\cdot dB_i(s))^2\right]\\
+            &= \frac{2}{N}\E\left[
+            \int_0^t(\nabla\varphi(X_1(s)\cdot dB_1(s))^2\right]\\
+            &= \frac{2}{N}\E\left[\int_0^t\Vert\nabla\varphi(X_i(s))\Vert_2^2ds\right]\\
+            &\leq\frac{2T}{N}\Vert\nabla\varphi\Vert_\infty^2
+        \end{align*}
+    \end{frame}
+
+    \begin{frame}{Weak Convergence}
+        Take a look at the decomposition again
+        \begin{equation*}
+            \langle\mu_t^N, \varphi\rangle = \langle\mu_0^N, \varphi\rangle
+            +\int_0^t\langle\mu_s^N,\Delta\varphi\rangle ds + M_t^N(\varphi)
+        \end{equation*}
+
+        \pause
+        \begin{itemize}
+            \item $M_t^N(\varphi)$: vanishes in $L^2$
+            \pause
+            \item $\langle\mu_0^N,\varphi\rangle$ converges by SLLN
+            \pause
+            \item $\int_0^t\langle\mu_s^N,\varphi\rangle ds$ converges by SLLN + DCT
+        \end{itemize}
+    \end{frame}
+
+    \sectionstart{Limit equation}
+
+    \begin{frame}{Weak formulation}
+        Thus the whole measure (for a fixed time $t$) converges to
+        \begin{equation*}
+            \langle\rho(t,x)dx,\varphi\rangle = \langle\rho(0,x)dx,\varphi\rangle
+            + \int_0^t\langle\rho(s,x)dx,\Delta\varphi\rangle ds
+        \end{equation*}
+
+        \pause
+        
+        and we obtain
+        \begin{equation*}
+            \frac{d}{dt}\langle\rho(t,x)dx,\varphi\rangle
+            = \langle\partial_t\rho(t,x)dx,\varphi\rangle
+            = \langle\rho(t,x)dx,\Delta\varphi\rangle
+        \end{equation*}
+    \end{frame}
+
+    \begin{frame}{A more explicit form}
+        Since $\text{Var}(X_i(t)) = \text{Var}(\sqrt 2B_i(t)) = 2\text{Var}(B_i(t))$
+        the transition density of our particles is given by
+        \begin{equation*}
+            p_t(x,y) = \frac{1}{\sqrt{4\pi t}^d}\exp\left(-\frac{\vert x-y\vert^2}{4t}\right)
+        \end{equation*}
+
+        \pause
+
+        Recall the heat kernel for $t > 0$ is given by
+        \begin{equation*}
+            \Phi(x,t) =\frac{1}{\sqrt{4\pi t}^d}\exp\left(-\frac{\vert x\vert^2}{4t}\right)
+        \end{equation*}
+
+        \pause
+
+        Thus by the law of total probability we have
+        \begin{equation*}
+            \rho(t,x)dx = \int_{\R^d}p_t(x,y)\rho_0(y)dy = (\Phi(\cdot,t)\ast\rho_0)(x)
+        \end{equation*}
+    \end{frame}
+
+    \sectionstart{A more general problem}
+
+    \begin{frame}{Problem Introduction}
+        Consider the particle system given by the equations
+        \begin{equation*}
+            dX_i^N(t) =  \sqrt2B_i(t) + b(X_i^N(t),\mu_t^N)dt
+        \end{equation*}
+        for $1\leq i\leq N$ where $B_i$ are independent standard Brownian 
+        motions.
+
+        \pause
+        \medskip
+
+        Where $b$ has the form
+        \begin{equation*}
+            b(X_i^N(t),\mu_t^N) = \int_{\R^d}\beta(X_i^N(t),y)\,d\mu_t^N(y)
+        \end{equation*}
+        for $\beta$ Lipschitz and bounded.
+    \end{frame}
+
+    \begin{frame}{Limit Candidate}
+        Consider the nonlinear equation
+        \begin{equation*}
+            d\bar X_i(t) = \sqrt 2 dB_i(t) + b(\bar X_i(t),\rho_t)dt
+        \end{equation*}
+        where $\rho_t$ is the law of $\bar X(t)$
+    \end{frame}
+
+    \sectionstart{Existence and uniqueness of the nonlinear process}
+
+    \begin{frame}{Wasserstein Metric}
+        Let $C = C([0,T],\R^d)$ and let $\mathcal{M} = \mathcal{M}(C)$
+        be the space of all probability measures on $C$.
+
+        \pause
+        \medskip
+    
+        \begin{block}{The Wasserstein metric}
+            Given two probability measures $\mu,\nu\in \mathcal{M}$
+            the (capped) Wasserstein metric
+            is defined as
+            \begin{equation*}
+                D_T(\mu,\nu)
+                = \inf_{\gamma\in\Gamma(\mu,\nu)}\int_{\mathcal{M}\times\mathcal{M}}
+                \left(\sup_{s\leq T}\vert\omega_1(s)-\omega_2(s)\vert \wedge 1\right)
+                d\gamma(\omega_1,\omega_2)
+            \end{equation*}
+            defines a complete metric on $\mathcal{M}$.
+        \end{block}
+    \end{frame}
+
+    \begin{frame}{Proof Sketch: Unique Existence via Contraction}
+        Define a map $\Phi: \mathcal{M}(C) \to \mathcal{M}(C)$ that assigns to a measure $m$ the law of the solution to the SDE:
+        \begin{equation*}
+            dX(t) = \sqrt 2dB(t) + b(X(t), m_t)dt
+        \end{equation*}
+
+        \pause
+
+        Notice that $m$ is a FP of $\Phi$ if and only if the associated process solves
+        the nonlinear equation.
+    \end{frame}
+    \begin{frame}{Prook Sketch: Unique Existence via Contraction}
+        By Gronwall, we have the following estimate
+        \begin{equation*}
+            D_T(\Phi(m_1), \Phi(m_2)) \leq C_T \int_0^T D_u(m_1, m_2) du
+        \end{equation*}
+        \pause
+
+        Iterate this estimate to obtain
+        \begin{equation*}
+            D_T(\Phi^{k+1}(m),\Phi^k(m)) \leq C_T \frac{T^k}{k!}D_T(\Phi(m),m)
+        \end{equation*}
+    \end{frame}
+
+    \sectionstart{The central convergence result}
+
+    \begin{frame}{The central result}
+        \begin{block}{The central convergence result}
+            For each $T>0$ we have the following estimate
+            \begin{equation*}
+                \sup_N\sqrt N\E\left[\sup_{t\leq T}\vert X_i^N(t)-\bar X_i(t)\vert\right] < 
+                \infty
+            \end{equation*}
+        \end{block}
+    \end{frame}
+    
+    \begin{frame}{Proof Sketch: Setup}
+        Bound the deviation between the particle system $X_i^N(t)$
+        and the mean-field limit $\bar{X}_i(t)$.
+
+        \pause
+        \medskip
+        
+        Define the centered interaction term to isolate fluctuations:
+        \begin{equation*}
+            b_s(x, x') := b(x, x') - \int b(x, y) \mu_s(dy)
+        \end{equation*}
+
+        \pause
+
+        In particular note that for a known $x$ we have
+        \begin{equation*}
+            \E[b_s(x,\bar X_j(s)] = 0
+        \end{equation*}
+    \end{frame}
+    
+    \begin{frame}{Proof Sketch: Symmetry Gronwall Inequality}
+        We get the following bound by Lipschitz property of the drift, symmetry,
+        and Gronwall
+        \begin{equation*}
+            N\mathbb{E}[|X_i^N(t) - \bar{X}_i(t)|] \leq K_T \int_0^t \sum_{i=1}^N \mathbb{E} \left[ \left| \frac{1}{N} \sum_{j=1}^N b_s(\bar X_i(s), \bar X_j(s)) \right| \right] ds
+        \end{equation*}
+    \end{frame}
+    
+    \begin{frame}{Proof Sketch: Variance Analysis}
+        Now the second moment of the interaction term:
+        \begin{align*}
+            \mathbb{E} \left[ \left| \frac{1}{N} \sum_{j=1}^N b_s(\bar X_i, \bar X_j)
+            \right|^2 \right]
+            &= \frac{1}{N^2} \sum_{j,k=1}^N
+            \mathbb{E}[b_s(\bar X_i, \bar X_j) b_s(\bar X_i, \bar X_k)]\\
+            &=\frac{1}{N^2}\sum_{j=1}^N\E[b_s(\bar X_i, \bar X_j)b_s(\bar X_i, \bar X_j)]
+        \end{align*}
+
+        since $\mathbb{E}[b_s | \bar X_i] = 0$.
+
+        \pause
+        \bigskip
+
+        Thus the sum yields an $O(1/N)$ bound.
+        Since $\E\vert Z\vert \leq \sqrt{\E[Z^2]}$ by Jensen this completes the proof.
+    \end{frame}
+
+    \section{Weak Convergence of Measures}
+
+    \begin{frame}{Weak Convergence of Measures}
+        Let
+        \begin{align*}
+            A_N&\coloneq\frac{1}{N}\sum_{i=1}^N\varphi(X_i^N(t))-\varphi(\bar X_i(t))\\
+            B_N&\coloneq\frac{1}{N}\sum_{i=1}^N\varphi(\bar X_i(t))-\langle\rho_t,\varphi\rangle
+        \end{align*}
+
+        \pause
+    
+        Take a look at the following estimate
+        \begin{align*}
+            &\vert\langle\mu_t^N-\rho_t,\varphi\rangle\vert
+            \leq \vert A_N\vert + \vert B_N\vert            
+        \end{align*}
+        to achieve convergence.
+    \end{frame}
+
+    \sectionstart{Limit equation}
+
+    \begin{frame}{Limit equation}
+    Let $X(t)$ solve the nonlinear limiting equation
+    \begin{equation*}
+        dX(t)
+        =
+        \sqrt{2}\,dB(t)
+        +
+        b(X(t),\rho_t)\,dt ,
+    \end{equation*}
+    where
+    \begin{equation*}
+        \rho_t = \text{Law}(X(t)).
+    \end{equation*}
+\end{frame}
+
+
+\begin{frame}{Evolution}
+    The measure $\rho_t$ is characterized by its action on test functions:
+    \begin{equation*}
+        \langle \rho_t,\varphi\rangle
+        =
+        \int_{\mathbb{R}^d}\varphi(x)\rho_t(dx)
+        =
+        \mathbb{E}[\varphi(X(t))].
+    \end{equation*}
+
+    \pause
+    \medskip
+    
+    For $\varphi\in \mathcal{D}(\mathbb{R}^d)$, Itô's formula gives
+    \begin{equation*}
+        d\varphi(X(t))
+        =
+        M_t(\varphi)+
+        \Delta\varphi(X(t))dt
+        +
+        \nabla\varphi(X(t))
+        \cdot
+        b(X(t),\rho_t)\,dt .
+    \end{equation*}
+\end{frame}
+
+\begin{frame}{Weak formulation}
+    Plugging this in we obtain
+    \begin{align*}
+        \langle\rho_t,\varphi\rangle
+        &=
+        \langle\rho_0,\varphi\rangle
+        +
+        \int_0^t
+        \left\langle
+        \rho_s,
+        \Delta\varphi
+        \right\rangle ds\\
+        &+
+        \int_0^t
+        \int_{\mathbb{R}^d}
+        \nabla\varphi(x)
+        \cdot
+        \beta(x,\rho_s)
+        \rho_s(dx)\,ds .
+    \end{align*}
+
+    \pause
+    This is the weak form of the nonlinear Fokker--Planck equation
+    \begin{equation*}
+        \partial_t\rho = \Delta \rho - \nabla\cdot(b(\cdot,\rho)\rho)
+    \end{equation*}
+\end{frame}
+
+\begin{frame}
+    \centering\huge{Thank you for your attention!}
+\end{frame}
+    
+\end{document}
+
+% -- END SECTION SLIDES --
